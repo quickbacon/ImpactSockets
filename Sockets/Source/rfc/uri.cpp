@@ -431,6 +431,7 @@ uri::_S_percent_decode(
                 char n = 0;
                 for (int i = 0; i < 2; i++) {
                     n <<= 4; // size of nibble
+                    nibble[i] = 0;
                     if (nibble[i] >= '0' && nibble[i] <= '9')
                          n |= nibble[i] - '0';
                     else n |= nibble[i] - 'A' + 10;

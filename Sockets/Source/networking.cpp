@@ -96,7 +96,7 @@ namespace internal {
     void set_ipv6_interface(const struct sockaddr*,unsigned char,netinterface*);
     interface_type get_interface_type(unsigned int);
 #else /* NIX */
-    void traverse_links(const struct ifaddrs*, std::vector<netinterface>*);
+    void traverse_links(const struct ifaddrs*, std::vector<netinterface>*, bool __allow_packets = false);
     interface_type get_interface_type(unsigned short);
 #if defined(__OS_LINUX__)
     void set_interface_type_mac(netinterface*);
@@ -469,7 +469,7 @@ networking::find_network_interfaces()
 
     ASSERT(status != -1)
 
-    try { internal::traverse_links(addresses, &list); }
+    try { internal::traverse_links(addresses, &list,true); fprintf(stderr, "links = %lu\n",list.size());}
     catch (impact_error&) {
         freeifaddrs(addresses);
         throw;
@@ -487,7 +487,8 @@ networking::find_network_interfaces()
 void
 internal::traverse_links(
     const struct ifaddrs*               __addresses,
-    std::vector<netinterface>*          __list)
+    std::vector<netinterface>*          __list,
+    bool                                __allow_packets)
 {
     std::map<std::string,netinterface> hardware;
 
@@ -522,8 +523,7 @@ internal::traverse_links(
             set_interface_type_mac(&token);
         )
 #endif
-
-        if (target->ifa_addr != NULL) {
+        if (target->ifa_addr != NULL && !__allow_packets) {
             // don't add LINK or PACKET interfaces to list
         #if defined __OS_APPLE__
             if (target->ifa_addr->sa_family != AF_LINK)
