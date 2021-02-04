@@ -469,7 +469,7 @@ networking::find_network_interfaces()
 
     ASSERT(status != -1)
 
-    try { internal::traverse_links(addresses, &list,true); fprintf(stderr, "links = %lu\n",list.size());}
+    try { internal::traverse_links(addresses, &list,true);}
     catch (impact_error&) {
         freeifaddrs(addresses);
         throw;
